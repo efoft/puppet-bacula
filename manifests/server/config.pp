@@ -1,0 +1,41 @@
+#
+class bacula::server::config {
+
+  file { $bacula::params::conf_d_dir:
+    ensure => $bacula::server::ensure ? { 'present' => 'directory', 'absent' => undef },
+  }
+
+  # dummy.conf is an empty file that is needed just to prevent errors when the conf_d directory is read for *.conf files and no one exists
+  file { "${bacula::params::conf_d_dir}/dummy.conf":
+    ensure => $bacula::server::ensure,
+  }
+
+  concat { $bacula::params::server_cfgfile:
+    ensure => $bacula::server::ensure,
+    notify => Service[$bacula::params::server_service_name],
+  }
+
+  concat::fragment { 'bacula-dir.cong_start':
+    target  => $bacula::params::server_cfgfile,
+    content => template('bacula/bacula-dir.conf_start.erb'),
+    order   => '01',
+  }
+
+  concat::fragment { 'bacula-dir.cong_end':
+    target  => $bacula::params::server_cfgfile,
+    content => template('bacula/bacula-dir.conf_end.erb'),
+    order   => '10',
+  }
+
+  # server must always have local client installed in order to be able to run restore job
+  class { '::bacula::client':
+    ensure        => $bacula::server::ensure,
+    director_name => $bacula::server::director_name,
+    client_name   => $bacula::server::local_client_name,
+    password      => $bacula::server::local_client_pass,
+    fileset       => $bacula::server::local_client_fileset,
+    exclude       => $bacula::server::local_client_exclude,
+  }
+
+  contain ::bacula::server::import
+}

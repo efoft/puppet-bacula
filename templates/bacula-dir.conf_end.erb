@@ -1,0 +1,3 @@
+# Finally, bring in all the additional pieces of configuration from the
+# different servers for which this Director was configured to manage
+@|"sh -c 'for f in <%= scope['bacula::params::conf_d_dir'] %>/*.conf ; do echo @${f} ; done'"
