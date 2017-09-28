@@ -1,0 +1,206 @@
+# The file is managed by Puppet
+#
+# Don't edit manually
+#
+
+Director {
+  Name = <%= scope['bacula::server::director_name'] %>
+  DIRport = <%= scope['bacula::server::director_port'] %>
+  QueryFile = "/etc/bacula/query.sql"
+  WorkingDirectory = "/var/spool/bacula"
+  PidDirectory = "/var/run"
+  Maximum Concurrent Jobs = 1
+  Password = "<%= scope['bacula::server::console_pass'] %>"         # Console password
+  Messages = Daemon
+}
+
+# Generic catalog service
+Catalog {
+  Name = "<%= scope['bacula::server::director_name'] %>:catalog"
+  dbname = "<%= scope['bacula::server::dbname'] %>"; dbdriver = dbi:<%= scope['bacula::server::dbtype'] %>;
+  dbaddress = <%= scope['bacula::server::dbhost'] %>; dbuser = "<%= scope['bacula::server::dbuser'] %>"; dbpassword = "<%= scope['bacula::Server::dbpass'] %>"
+}
+
+# Job defaults
+# -----------------------------------------------------------------------------------------------------------------------
+JobDefs {
+  Name = "DefaultJob"
+  Type = Backup
+  Level = Incremental
+  Client = <%= scope['bacula::server::local_client_name'] %>
+  FileSet = "Full Set"
+  Schedule = "WeeklyCycle"
+  Storage = <%= scope['bacula::server::storage_name'] %>
+  Messages = Standard
+  Pool = File
+  Priority = 10
+  Write Bootstrap = "/var/spool/bacula/%c.bsr"
+}
+
+<% if scope['bacula::server::backup_catalog'] -%>
+# Backup the catalog database (after the nightly save)
+Job {
+  Name = "BackupCatalog"
+  JobDefs = "DefaultJob"
+  Level = Full
+  FileSet="Catalog"
+  Schedule = "WeeklyCycleAfterBackup"
+  # This creates an ASCII copy of the catalog
+  # Arguments to make_catalog_backup.pl are:
+  #  make_catalog_backup.pl <catalog-name>
+  RunBeforeJob = "/usr/libexec/bacula/make_catalog_backup.pl MyCatalog"
+  # This deletes the copy of the catalog
+  RunAfterJob  = "/usr/libexec/bacula/delete_catalog_backup"
+  Write Bootstrap = "/var/spool/bacula/%n.bsr"
+  Pool = CatalogPool
+  Priority = 11                   # run after main backup
+}
+<% end -%>
+
+# Standard Restore template, to be changed by Console program
+Job {
+  Name = "RestoreFiles"
+  Type = Restore
+  Client = <%= scope['bacula::server::local_client_name'] %>
+  FileSet="Full Set"                  
+  Storage = <%= scope['bacula::server::storage_name'] %>
+  Pool = Default
+  Messages = Standard
+  Where = <%= scope['bacula::server::restore_dir'] %>
+}
+
+# Schedules
+# -----------------------------------------------------------------------------------------------------------------------
+Schedule {
+  Name = "WeeklyCycle"
+  Run = Full 1st sun at 23:05
+  Run = Differential 2nd-5th sun at 23:05
+  Run = Incremental mon-sat at 23:05
+}
+
+<% if scope['bacula::server::backup_catalog'] -%>
+# This schedule does the catalog. It starts after the WeeklyCycle
+Schedule {
+  Name = "WeeklyCycleAfterBackup"
+  Run = Full sun-sat at 23:10
+}
+
+<% end -%>
+# FileSets
+# -----------------------------------------------------------------------------------------------------------------------
+# Standart file set to be used in JobDefs and Restore Job template
+FileSet {
+  Name = "Full Set"
+  Include {
+    Options {
+      signature = MD5
+    }
+    File = /
+  }
+  Exclude {
+    File = /var/spool/bacula
+    File = /tmp
+    File = /proc
+    File = /tmp
+    File = /.journal
+    File = /.fsck
+  }
+}
+
+<% if scope['bacula::server::backup_catalog'] -%>
+# This is the backup of the catalog
+FileSet {
+  Name = "Catalog"
+  Include {
+    Options {
+      signature = MD5
+    }
+    File = "/var/spool/bacula/bacula.sql"
+  }
+}
+
+<% end -%>
+# Messages
+# -----------------------------------------------------------------------------------------------------------------------
+Messages {
+  Name = Standard
+  mailcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) (%r)\" -s \"Bacula: %t %e of %c %l\" %r"
+  operatorcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) (%r)\" -s \"Bacula: Intervention needed for %j\" %r"
+<% if scope['bacula::server::mail_to_root'] == 'all' -%>
+  mail = root@localhost = all, !skipped            
+<% elsif scope['bacula::server::mail_to_root'] == 'errors' -%>
+  mail on error = root@localhost = all, !skipped
+<% end -%>
+  operator = root@localhost = mount
+  console = all, !skipped, !saved
+<% if scope['bacula::server::log_messages'] -%>
+  append = "/var/log/bacula/bacula.log" = all, !skipped
+<% end -%>
+  catalog = all
+}
+
+Messages {
+  Name = Daemon
+  mailcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) (%r)\" -s \"Bacula daemon message\" %r"
+<% if scope['bacula::server::mail_to_root'] == 'all' -%>
+  mail = root@localhost = all, !skipped            
+<% elsif scope['bacula::server::mail_to_root'] == 'errors' -%>
+  mail on error = root@localhost = all, !skipped
+<% end -%>
+  console = all, !skipped, !saved
+<% if scope['bacula::server::log_messages'] -%>
+  append = "/var/log/bacula/bacula.log" = all, !skipped
+<% end -%>
+}
+
+# Pools
+# -----------------------------------------------------------------------------------------------------------------------
+# Default pool definition
+Pool {
+  Name = Default
+  Pool Type = Backup
+  Recycle = yes
+  AutoPrune = yes
+  Volume Retention = 1 Month
+}
+
+# Scratch pool definition
+Pool {
+  Name = Scratch
+  Pool Type = Backup
+}
+
+# File Pool definition
+Pool {
+  Name = File
+  Pool Type = Backup
+  Label Format = "${Job}.${Year}${Month:p/2/0/r}${Day:p/2/0/r}.${Hour:p/2/0/r}${Minute:p/2/0/r}"
+  Recycle = yes                       # Bacula can automatically recycle Volumes
+  AutoPrune = yes                     # Prune expired volumes
+  Volume Retention = 1 Week
+  Maximum Volume Jobs = 1            # Don't allow re-use of volumes; one volume per job only
+}
+
+<% if scope['bacula::server::backup_catalog'] -%>
+Pool {
+  Name = CatalogPool
+  Label Format = "catalog.${Year}${Month:p/2/0/r}${Day:p/2/0/r}.${Hour:p/2/0/r}${Minute:p/2/0/r}"
+  Pool Type = Backup
+  Recycle = Yes
+  Auto Prune = Yes
+  Volume Retention = 3 Days
+  Maximum Volume Jobs = 1
+}
+
+<% end -%>
+<% if scope['bacula::server::monitor_pass'] -%>
+# Restricted console used by tray-monitor to get the status of the director
+# -----------------------------------------------------------------------------------------------------------------------
+Console {
+  Name = bacula-mon
+  Password = "<%= scope['bacula::server::monitor_pass'] %>"
+  CommandACL = status, .status
+}
+
+<% end -%>
+

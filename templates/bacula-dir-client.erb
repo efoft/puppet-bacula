@@ -1,0 +1,41 @@
+Client {
+  Name = "<%= @client_name %>"
+  Address = <%= @address %>
+  FDPort = <%= @port %>
+  Catalog = "<%= scope['bacula::server::director_name'] -%>:catalog"
+  Password = "<%= @password %>"
+  AutoPrune = yes
+  Job Retention = 2 weeks
+  File Retention = 2 weeks
+}
+
+Job {
+  Name = "<%= @client_name %>-backup"
+  Client = <%= @client_name %>
+  JobDefs = "DefaultJob"
+  FileSet = "<%= @client_name %>-fileset"
+  Write Bootstrap = "/var/spool/bacula/<%= @client_name %>-fileset.bsr"
+}
+
+FileSet {
+  Name = "<%= @client_name %>-fileset"
+  Include {
+    Options {
+      Signature   = <%= @signature %>
+<% if @compression -%>
+      Compression = <%= @compression %>
+<% end -%>
+    }
+<% @fileset.each do |path| -%>
+   File = <%= path %>
+<% end -%>
+  }
+<% if @exclude -%>
+  Exclude {
+<% @exclude.each do |path| -%>
+    File = <%= path %>
+<% end -%>
+  }
+<% end -%>
+}
+

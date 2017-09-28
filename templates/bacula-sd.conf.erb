@@ -1,0 +1,50 @@
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Storage Daemon Configuration
+Storage {
+Name = <%= @storage_name %>
+  SDPort = 9103
+  WorkingDirectory = "/var/spool/bacula"
+  Pid Directory = "/var/run"
+  Maximum Concurrent Jobs = 20
+}
+
+# List Directors who are permitted to contact Storage daemon
+Director {
+  Name = <%= @director_name %>
+  Password = "<%= @storage_pass %>"
+}
+
+<% if @monitor_pass -%>
+Director {
+  Name = bacula-mon
+  Password = "<%= @monitor_pass %>"
+  Monitor = yes
+}
+
+<% end -%>
+#
+# Devices supported by this Storage daemon
+# To connect, the Director's bacula-dir.conf must have the
+#  same Name and MediaType. 
+#
+
+Device {
+  Name = <%= @device_name %>
+  Media Type = <%= @media_type %>
+  Archive Device = <%= @storage_dir %>
+  LabelMedia = yes;                   # lets Bacula label unlabeled media
+  Random Access = Yes;
+  AutomaticMount = yes;               # when device opened, read it
+  RemovableMedia = no;
+  AlwaysOpen = no;
+}
+
+# 
+# Send all messages to the Director, 
+# mount messages also are sent to the email address
+#
+Messages {
+  Name = Standard
+  director = <%= @director_name %> = all
+}

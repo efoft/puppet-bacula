@@ -1,0 +1,9 @@
+# DO NOT EDIT - Managed by Puppet
+#
+# Bacula Console Configuration
+
+Director {
+  Name = "<%= scope['bacula::server::director_name'] -%>"
+  Address = localhost
+  Password = "<%= scope['bacula::server::console_pass'] -%>"
+}
