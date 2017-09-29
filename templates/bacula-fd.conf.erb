@@ -21,8 +21,8 @@ Director {
 FileDaemon {
   Name = "<%= @myname %>:fd"
   FDPort = <%= @port %>
-  Working Directory = /var/spool/bacula
-  PID Directory = /var/run
+  Working Directory = "<%= scope['bacula::params::client_workdir'] %>"
+  PID Directory = "<%= scope['bacula::params::client_pid_dir'] %>"
   Maximum Concurrent Jobs = 3
 }
 
