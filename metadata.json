@@ -7,7 +7,7 @@
         "dependencies": [
                 { "name": "puppetlabs/stdlib" },
                 { "name": "puppetlabs/concat" },
-                { "name": "efoft/selinux","version_requirement":">= 0.1.0" }
+                { "name": "efoft/selinux","version_requirement":">= 0.1.1" }
         ],
         "data_provider": "hiera",
         "operatingsystem_support": [
