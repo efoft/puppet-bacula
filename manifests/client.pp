@@ -1,11 +1,10 @@
 #
 class bacula::client(
   Enum['present','absent'] $ensure = 'present',
-  String $director_name,
-  String $client_name              = "${::fqdn}:fd",
-  String $client_port              = $bacula::params::client_port,
-  Optional[String] $myip           = undef,
-  String $address                  = $::fqdn,
+  String $director,
+  String $myname                   = $::fqdn,
+  String $myip                     = $::ipaddress,
+  String $port                     = $bacula::params::client_port,
   String $password,
   Array[String] $fileset           = [],
   Optional[Array] $exclude         = [],
@@ -25,16 +24,16 @@ class bacula::client(
     notify  => Service[$bacula::params::client_service_name],
   }
 
-  @@bacula::server::client { $client_name:
+  @@bacula::server::client { $myname:
     ensure      => $ensure,
-    address     => $myip ? { undef => $address, default => $myip },
+    address     => $myip,
     password    => $password,
-    port        => $client_port,
+    port        => $port,
     signature   => $signature,
     compression => $compression,
     fileset     => $fileset,
     exclude     => $exclude,
-    tag         => ["director-${director_name}"],
+    tag         => "director-${director}",
   }
 
   service { $bacula::params::client_service_name:

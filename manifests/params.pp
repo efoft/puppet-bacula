@@ -23,7 +23,6 @@ class bacula::params {
 
   # director
   $director_port            = '9101'
-  $director_name            = "${::fqdn}:dir"
   $dbtype                   = 'postgresql'
   $dbhost                   = 'localhost'
   $dbname                   = 'bacula'
@@ -31,11 +30,9 @@ class bacula::params {
 
   # storage
   $storage_port             = '9103'
-  $storage_name             = "${::fqdn}:sd"
   $device_name              = 'FileStorage'
   $media_type               = 'File'
 
   # client
   $client_port              = '9102'
-  $client_name              = "${::fqdn}:fd"
 }

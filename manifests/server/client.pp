@@ -1,7 +1,7 @@
 #
 define bacula::server::client(
   Enum['present','absent'] $ensure = 'present',
-  String $client_name              = $title,
+  String $myname                   = $title,
   String $address,
   String $port                     = '9102',
   String $password,

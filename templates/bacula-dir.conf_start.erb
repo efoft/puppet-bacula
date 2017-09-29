@@ -4,8 +4,8 @@
 #
 
 Director {
-  Name = <%= scope['bacula::server::director_name'] %>
-  DIRport = <%= scope['bacula::server::director_port'] %>
+  Name = "<%= scope['bacula::server::myname'] %>:dir"
+  DIRport = <%= scope['bacula::server::port'] %>
   QueryFile = "/etc/bacula/query.sql"
   WorkingDirectory = "/var/spool/bacula"
   PidDirectory = "/var/run"
@@ -16,7 +16,7 @@ Director {
 
 # Generic catalog service
 Catalog {
-  Name = "<%= scope['bacula::server::director_name'] %>:catalog"
+  Name = "<%= scope['bacula::server::myname'] %>:catalog"
   dbname = "<%= scope['bacula::server::dbname'] %>"; dbdriver = dbi:<%= scope['bacula::server::dbtype'] %>;
   dbaddress = <%= scope['bacula::server::dbhost'] %>; dbuser = "<%= scope['bacula::server::dbuser'] %>"; dbpassword = "<%= scope['bacula::Server::dbpass'] %>"
 }

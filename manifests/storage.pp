@@ -1,15 +1,26 @@
+# === Class bacula::storage ===
+#
+# === Parameters ===
+# [*director*]
+# Fully qualified and/or resolvable hostname where director resides.
+#
+# [*password*]
+# Password string for access this storage server.
+#
+# [*port*]
+# TCP port on which storage listens.
 #
 class bacula::storage(
   Enum['present','absent'] $ensure = 'present',
-  String $director_name,
-  String $storage_pass,
-  Optional[String] $monitor_pass   = undef,
-  String $storage_port             = $bacula::params::storage_port,
-  String $storage_name             = $bacula::params::storage_name,
+  String $director,
+  String $password,
+  String $myname                   = $::fqdn,
+  String $myip                     = $::ipaddress,
+  String $port                     = $bacula::params::storage_port,
   String $device_name              = $bacula::params::device_name,
   String $media_type               = $bacula::params::media_type,
-  String $myaddress                = $::fqdn,
-  Stdlib::Absolutepath $storage_dir,
+  Optional[String] $monitor_pass   = undef,
+  Stdlib::Unixpath $storage_dir,
 ) inherits bacula::params {
 
   package { $bacula::params::storage_package_name:
@@ -23,11 +34,11 @@ class bacula::storage(
     notify  => Service[$bacula::params::storage_service_name],
   }
 
-  @@bacula::server::storage { $storage_name:
+  @@bacula::server::storage { $myname:
     ensure   => $ensure,
-    address  => $myaddress,
-    password => $storage_pass,
-    tag      => ["director-${director_name}"],
+    address  => $myip,
+    password => $password,
+    tag      => "director-${director}",
   }
 
   service { $bacula::params::storage_service_name:

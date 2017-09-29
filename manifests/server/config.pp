@@ -1,6 +1,8 @@
 #
 class bacula::server::config {
 
+  assert_private('This is private class')
+
   file { $bacula::params::conf_d_dir:
     ensure => $bacula::server::ensure ? { 'present' => 'directory', 'absent' => undef },
   }
@@ -35,8 +37,8 @@ class bacula::server::config {
   # server must always have local client installed in order to be able to run restore job
   class { '::bacula::client':
     ensure        => $bacula::server::ensure,
-    director_name => $bacula::server::director_name,
-    client_name   => $bacula::server::local_client_name,
+    director      => $bacula::server::myname,
+    myname        => $bacula::server::local_client_name,
     password      => $bacula::server::local_client_pass,
     monitor_pass  => $bacula::server::monitor_pass,
     fileset       => $bacula::server::local_client_fileset,
