@@ -17,5 +17,4 @@ class bacula::server::install {
   package { $bacula::params::console_package_name:
     ensure => $bacula::server::ensure ? { 'absent' => 'purged', 'present' => 'present' },
   }
-
 }

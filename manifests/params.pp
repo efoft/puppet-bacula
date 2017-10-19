@@ -31,17 +31,17 @@ class bacula::params {
   }
 
   # director
-  $director_port            = '9101'
+  $director_port            = 9101
   $dbtype                   = 'postgresql'
   $dbhost                   = 'localhost'
   $dbname                   = 'bacula'
   $dbuser                   = 'bacula'
 
   # storage
-  $storage_port             = '9103'
+  $storage_port             = 9103
   $device_name              = 'FileStorage'
   $media_type               = 'File'
 
   # client
-  $client_port              = '9102'
+  $client_port              = 9102
 }

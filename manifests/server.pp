@@ -2,7 +2,7 @@
 class bacula::server(
   Enum['present','absent'] $ensure   = 'present',
   String $myname                     = $::fqdn,
-  String $port                       = $bacula::params::director_port,
+  Numeric $port                      = $bacula::params::director_port,
   String $storage_name,
   String $storage_pass,
   String $console_pass,
@@ -13,7 +13,7 @@ class bacula::server(
   String $dbuser                     = $bacula::params::dbuser,
   String $dbpass,
   Enum['all','errors'] $mail_to_root = 'errors',
-  Stdlib::Absolutepath $restore_dir  = '/tmp/bacula-restores',
+  Stdlib::Unixpath $restore_dir      = '/tmp/bacula-restores',
   Boolean $backup_catalog            = false,
   Boolean $log_messages              = false,
   String $local_client_name          = $::fqdn,
