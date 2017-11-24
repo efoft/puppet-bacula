@@ -45,7 +45,7 @@ class bacula::client(
   Array[String] $fileset           = [],
   Optional[Array] $exclude         = [],
   Enum['MD5','SHA1'] $signature    = 'MD5',
-  Optional[String] $compression    = 'GZIP9',
+  String $compression              = 'GZIP9',
   Optional[String] $monitor_pass   = undef,
 ) inherits bacula::params {
 

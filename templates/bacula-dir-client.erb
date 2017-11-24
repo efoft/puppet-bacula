@@ -22,7 +22,7 @@ FileSet {
   Include {
     Options {
       Signature   = <%= @signature %>
-<% if @compression -%>
+<% if @compression and !@compression.empty? -%>
       Compression = <%= @compression %>
 <% end -%>
     }
