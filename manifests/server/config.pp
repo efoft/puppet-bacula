@@ -3,13 +3,15 @@ class bacula::server::config {
 
   assert_private('This is private class')
 
-  # In Bacula version 5.x changed the way how to switch between different database backend.
-  # It's required now to configure the backend through the alternatives system.
-  # Read /usr/share/doc/bacula-common-5.x.x/README.Redhat
-  exec { "switch-bacula-backend-to-${bacula::server::dbtype}":
-    command => "alternatives --set libbaccats.so /usr/lib64/libbaccats-${bacula::server::dbtype}.so",
-    path    => ['/usr/sbin','/usr/bin', '/bin'],
-    unless  => "alternatives --list | grep libbaccats-${bacula::server::dbtype}.so",
+  if versioncmp($::bacula_version, '5.2.0') >= 0 {
+    # In Bacula version 5.2 changed the way how to switch between different database backend.
+    # It's required now to configure the backend through the alternatives system.
+    # Read /usr/share/doc/bacula-common-5.x.x/README.Redhat
+    exec { "switch-bacula-backend-to-${bacula::server::dbtype}":
+      command => "alternatives --set libbaccats.so /usr/lib64/libbaccats-${bacula::server::dbtype}.so",
+      path    => ['/usr/sbin','/usr/bin', '/bin'],
+      unless  => "alternatives --list | grep libbaccats-${bacula::server::dbtype}.so",
+    }
   }
 
   file { $bacula::params::conf_d_dir:
