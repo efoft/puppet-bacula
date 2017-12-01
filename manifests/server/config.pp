@@ -8,7 +8,7 @@ class bacula::server::config {
   # Read /usr/share/doc/bacula-common-5.x.x/README.Redhat
   exec { "switch-bacula-backend-to-${bacula::server::dbtype}":
     command => "alternatives --set libbaccats.so /usr/lib64/libbaccats-${bacula::server::dbtype}.so",
-    path    => ['/usr/sbin','/usr/bin'],
+    path    => ['/usr/sbin','/usr/bin', '/bin'],
     unless  => "alternatives --list | grep libbaccats-${bacula::server::dbtype}.so",
   }
 
