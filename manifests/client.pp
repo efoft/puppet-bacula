@@ -53,9 +53,15 @@ class bacula::client(
     ensure => $ensure ? { 'present' => 'present', 'absent' => 'purged' },
   }
 
+  $tmpl = $::kernel ?
+  {
+    'windows' => 'bacula-fd.conf.win.erb',
+    'linux'   => 'bacula-fd.conf.erb',
+  }
+
   file { $bacula::params::client_cfgfile:
     ensure  => $ensure,
-    content => template('bacula/bacula-fd.conf.erb'),
+    content => template("bacula/${tmpl}"),
     require => Package[$bacula::params::client_package_name],
     notify  => Service[$bacula::params::client_service_name],
   }

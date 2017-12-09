@@ -21,9 +21,9 @@ class bacula::params {
     'windows': {
       $client_package_name   = 'bacula'
       $client_service_name   = 'bacula-fd'
-      $client_cfgfile        = '/etc/bacula/bacula-fd.conf'
-      $client_workdir        = 'C:\\Program Files\\Bacula\\working'
-      $client_pid_dir        = 'C:\\Program Files\\Bacula\\working'
+      $client_cfgfile        = 'C:\\Program Files\\Bacula\\bacula-fd.conf'
+      $client_workdir        = 'C:\\\\Program Files\\\\Bacula\\\\working'
+      $client_pid_dir        = 'C:\\\\Program Files\\\\Bacula\\\\working'
     }
     default: {
       fail('Sorry! Your OS is not supported.')
