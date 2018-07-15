@@ -39,7 +39,7 @@ class bacula::client(
   Enum['present','absent'] $ensure = 'present',
   String $director,
   String $myname                   = $::fqdn,
-  Stdlib::Compat::Ipv4 $myip       = $::ipaddress,
+  Stdlib::Ip::Address $myip        = $::ipaddress,
   Numeric $port                    = $bacula::params::client_port,
   String $password,
   Array[String] $fileset           = [],

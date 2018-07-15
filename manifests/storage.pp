@@ -34,7 +34,7 @@ class bacula::storage(
   String $director,
   String $password,
   String $myname                   = $::fqdn,
-  Stdlib::Compat::Ipv4 $myip       = $::ipaddress,
+  Stdlib::Ip::Address $myip        = $::ipaddress,
   Numeric $port                    = $bacula::params::storage_port,
   String $device_name              = $bacula::params::device_name,
   String $media_type               = $bacula::params::media_type,
