@@ -30,18 +30,13 @@ class bacula::params {
     }
   }
 
-  # director
-  $director_port            = 9101
-  $dbtype                   = 'postgresql'
-  $dbhost                   = 'localhost'
-  $dbname                   = 'bacula'
-  $dbuser                   = 'bacula'
-
-  # storage
-  $storage_port             = 9103
-  $device_name              = 'FileStorage'
-  $media_type               = 'File'
-
-  # client
-  $client_port              = 9102
+  ## single source of common values
+  $myip          = $::ipaddress
+  $director_name = "${::fqdn}:dir"
+  $director_port = 9101
+  $catalog_name  = "${::fqdn}:catalog"
+  $storage_name  = "${::fqdn}:sd"
+  $storage_port  = 9103
+  $client_name   = "${::fqdn}:fd"
+  $client_port   = 9102
 }

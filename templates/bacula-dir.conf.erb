@@ -4,21 +4,21 @@
 #
 
 Director {
-  Name = "<%= scope['bacula::server::myname'] %>:dir"
-  DIRport = <%= scope['bacula::server::port'] %>
+  Name = "<%= @myname %>"
+  DIRport = <%= @port %>
   QueryFile = "/etc/bacula/query.sql"
   WorkingDirectory = "/var/spool/bacula"
   PidDirectory = "/var/run"
   Maximum Concurrent Jobs = 1
-  Password = "<%= scope['bacula::server::console_pass'] %>"         # Console password
+  Password = "<%= @console_pass %>"         # Console password
   Messages = Daemon
 }
 
 # Generic catalog service
 Catalog {
-  Name = "<%= scope['bacula::server::myname'] %>:catalog"
-  dbname = "<%= scope['bacula::server::dbname'] %>"; dbdriver = dbi:<%= scope['bacula::server::dbtype'] %>;
-  dbaddress = <%= scope['bacula::server::dbhost'] %>; dbuser = "<%= scope['bacula::server::dbuser'] %>"; dbpassword = "<%= scope['bacula::Server::dbpass'] %>"
+  Name = "<%= @catalog_name %>"
+  dbname = "<%= @dbname %>"; dbdriver = dbi:<%= @dbtype %>;
+  dbaddress = <%= @dbhost %>; dbuser = "<%= @dbuser %>"; dbpassword = "<%= @dbpass %>"
 }
 
 # Job defaults
@@ -27,17 +27,17 @@ JobDefs {
   Name = "DefaultJob"
   Type = Backup
   Level = Incremental
-  Client = <%= scope['bacula::server::local_client_name'] %>
   FileSet = "Full Set"
   Schedule = "WeeklyCycle"
-  Storage = <%= scope['bacula::server::storage_name'] %>
+  Storage = <%= @storage_name %>
+  Client = <%= @client_name %>
   Messages = Standard
   Pool = File
   Priority = 10
   Write Bootstrap = "/var/spool/bacula/%c.bsr"
 }
 
-<% if scope['bacula::server::backup_catalog'] -%>
+<% if @backup_catalog -%>
 # Backup the catalog database (after the nightly save)
 Job {
   Name = "BackupCatalog"
@@ -61,12 +61,23 @@ Job {
 Job {
   Name = "RestoreFiles"
   Type = Restore
-  Client = <%= scope['bacula::server::local_client_name'] %>
-  FileSet="Full Set"                  
-  Storage = <%= scope['bacula::server::storage_name'] %>
+  Client = "<%= @client_name %>"
+  FileSet = "Full Set"                  
+  Storage = "<%= @storage_name %>"
   Pool = Default
   Messages = Standard
-  Where = <%= scope['bacula::server::restore_dir'] %>
+  Where = <%= @restore_dir %>
+}
+
+# Storage reference
+# -----------------------------------------------------------------------------------------------------------------------
+Storage {
+  Name = "<%= @storage_name %>"
+  Address = <%= @storage_addr %>
+  SDPort = <%= @storage_port %>
+  Password = "<%= @storage_pass %>"
+  Device = FileStorage
+  Media Type = File
 }
 
 # Schedules
@@ -78,7 +89,7 @@ Schedule {
   Run = Incremental mon-sat at 23:05
 }
 
-<% if scope['bacula::server::backup_catalog'] -%>
+<% if @backup_catalog -%>
 # This schedule does the catalog. It starts after the WeeklyCycle
 Schedule {
   Name = "WeeklyCycleAfterBackup"
@@ -107,7 +118,7 @@ FileSet {
   }
 }
 
-<% if scope['bacula::server::backup_catalog'] -%>
+<% if @backup_catalog -%>
 # This is the backup of the catalog
 FileSet {
   Name = "Catalog"
@@ -126,14 +137,14 @@ Messages {
   Name = Standard
   mailcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) (%r)\" -s \"Bacula: %t %e of %c %l\" %r"
   operatorcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) (%r)\" -s \"Bacula: Intervention needed for %j\" %r"
-<% if scope['bacula::server::mail_to_root'] == 'all' -%>
+<% if @mail_to_root == 'all' -%>
   mail = root@localhost = all, !skipped            
-<% elsif scope['bacula::server::mail_to_root'] == 'errors' -%>
+<% elsif @mail_to_root == 'errors' -%>
   mail on error = root@localhost = all, !skipped
 <% end -%>
   operator = root@localhost = mount
   console = all, !skipped, !saved
-<% if scope['bacula::server::log_messages'] -%>
+<% if @log_messages -%>
   append = "/var/log/bacula/bacula.log" = all, !skipped
 <% end -%>
   catalog = all
@@ -142,13 +153,13 @@ Messages {
 Messages {
   Name = Daemon
   mailcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) (%r)\" -s \"Bacula daemon message\" %r"
-<% if scope['bacula::server::mail_to_root'] == 'all' -%>
+<% if @mail_to_root == 'all' -%>
   mail = root@localhost = all, !skipped            
-<% elsif scope['bacula::server::mail_to_root'] == 'errors' -%>
+<% elsif @mail_to_root == 'errors' -%>
   mail on error = root@localhost = all, !skipped
 <% end -%>
   console = all, !skipped, !saved
-<% if scope['bacula::server::log_messages'] -%>
+<% if @log_messages -%>
   append = "/var/log/bacula/bacula.log" = all, !skipped
 <% end -%>
 }
@@ -181,7 +192,7 @@ Pool {
   Maximum Volume Jobs = 1            # Don't allow re-use of volumes; one volume per job only
 }
 
-<% if scope['bacula::server::backup_catalog'] -%>
+<% if @backup_catalog -%>
 Pool {
   Name = CatalogPool
   Label Format = "catalog.${Year}${Month:p/2/0/r}${Day:p/2/0/r}.${Hour:p/2/0/r}${Minute:p/2/0/r}"
@@ -193,14 +204,17 @@ Pool {
 }
 
 <% end -%>
-<% if scope['bacula::server::monitor_pass'] -%>
+<% if @monitor_pass -%>
 # Restricted console used by tray-monitor to get the status of the director
 # -----------------------------------------------------------------------------------------------------------------------
 Console {
   Name = bacula-mon
-  Password = "<%= scope['bacula::server::monitor_pass'] %>"
+  Password = "<%= @monitor_pass %>"
   CommandACL = status, .status
 }
 
 <% end -%>
 
+# Finally, bring in all the additional pieces of configuration from the
+# different servers for which this Director was configured to manage
+@|"sh -c 'for f in <%= @conf_d_dir %>/*.conf ; do echo @${f} ; done'"

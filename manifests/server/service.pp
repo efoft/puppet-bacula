@@ -1,11 +1,11 @@
 #
-class bacula::server::service {
+class bacula::server::service inherits bacula::server {
 
   assert_private('This is private class')
 
-  service { $bacula::params::server_service_name:
-    ensure     => $bacula::server::ensure ? { 'present' => 'running', 'absent' => undef },
-    enable     => $bacula::server::ensure ? { 'present' => true,      'absent' => undef },
+  service { $server_service_name:
+    ensure     => $ensure ? { 'present' => 'running', 'absent' => undef },
+    enable     => $ensure ? { 'present' => true,      'absent' => undef },
     hasstatus  => true,
     hasrestart => true,
   }

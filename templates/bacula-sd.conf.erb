@@ -2,7 +2,7 @@
 #
 # Bacula Storage Daemon Configuration
 Storage {
-  Name = "<%= @myname %>:sd"
+  Name = "<%= @myname %>"
   SDPort = <%= @port %>
   WorkingDirectory = "/var/spool/bacula"
   Pid Directory = "/var/run"
@@ -11,7 +11,7 @@ Storage {
 
 # List Directors who are permitted to contact Storage daemon
 Director {
-  Name = "<%= @director %>:dir"
+  Name = "<%= @director_name %>"
   Password = "<%= @password %>"
 }
 
@@ -46,5 +46,5 @@ Device {
 #
 Messages {
   Name = Standard
-  director = "<%= @director %>:dir" = all
+  director = "<%= @director_name %>" = all
 }
