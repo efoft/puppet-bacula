@@ -1,8 +1,6 @@
 #
 class bacula::server::config inherits bacula::server {
 
-  assert_private('This is private class')
-
   if $ensure == 'present' and versioncmp($::bacula_version, '5.2.0') >= 0 {
     # In Bacula version 5.2 the way how to switch between different database backends changed.
     # It's required now to configure the backend through the alternatives system.

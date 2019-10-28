@@ -1,8 +1,6 @@
 #
 class bacula::server::install inherits bacula::server {
 
-  assert_private('This is private class')
-
   $real_server_package_name = $::operatingsystemmajrelease ?
   {
     '7' => $server_package_name,
