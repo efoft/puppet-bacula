@@ -28,9 +28,15 @@ define bacula::server::policy (
     order   => '01',
   }
 
+  concat::fragment { "client-config-between-include-exclude-for-${title}":
+    target  => "${bacula::server::conf_d_dir}/${title}.conf",
+    content => template("${module_name}/bacula-dir-client-between-include-exclude.erb"),
+    order   => '03',
+  }
+
   concat::fragment { "client-config-end-for-${title}":
     target  => "${bacula::server::conf_d_dir}/${title}.conf",
     source  => "puppet:///modules/${module_name}/bacula-dir-client-end",
-    order   => '04',
+    order   => '05',
   }
 }
