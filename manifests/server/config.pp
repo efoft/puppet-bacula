@@ -1,7 +1,7 @@
 #
 class bacula::server::config inherits bacula::server {
 
-  if $ensure == 'present' and versioncmp($::bacula_version, '5.2.0') >= 0 {
+  if $ensure == 'present' {
     # In Bacula version 5.2 the way how to switch between different database backends changed.
     # It's required now to configure the backend through the alternatives system.
     # Read /usr/share/doc/bacula-common-5.x.x/README.Redhat
@@ -9,6 +9,7 @@ class bacula::server::config inherits bacula::server {
       command => "alternatives --set libbaccats.so /usr/lib64/libbaccats-${dbtype}.so",
       path    => ['/usr/sbin','/usr/bin', '/bin'],
       unless  => "alternatives --list | grep libbaccats-${dbtype}.so",
+      onlyif  => 'alternatives --list | grep libbaccats',
     }
   }
 
