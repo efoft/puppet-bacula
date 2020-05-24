@@ -1,2 +1,7 @@
   }
   Exclude {
+<% if ! @exclude.empty? -%>
+<% @exclude.each do |path| -%>
+    File = <%= path %>
+<% end -%>
+<% end -%>

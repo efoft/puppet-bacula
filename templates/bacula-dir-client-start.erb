@@ -1,9 +1,9 @@
 Client {
   Name = "<%= @client_name %>"
-  Address = <%= @client_addr %>
-  FDPort = <%= @client_port %>
+  Address = <%= @ip %>
+  FDPort = <%= @port %>
   Catalog = "<%= @catalog_name -%>"
-  Password = "<%= @client_pass %>"
+  Password = "<%= @password %>"
   AutoPrune = yes
   Job Retention = 2 weeks
   File Retention = 2 weeks
@@ -26,3 +26,8 @@ FileSet {
       Compression = <%= @compression %>
 <% end -%>
     }
+<% if ! @fileset.empty? -%>
+<% @fileset.each do |path| -%>
+    File = <%= path %>
+<% end -%>
+<% end -%>

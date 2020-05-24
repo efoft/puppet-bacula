@@ -2,7 +2,7 @@
 #
 # Bacula Storage Daemon Configuration
 Storage {
-  Name = "<%= @myname %>"
+  Name = "<%= @storage_name %>"
   SDPort = <%= @port %>
   WorkingDirectory = "/var/spool/bacula"
   Pid Directory = "/var/run"
@@ -15,10 +15,10 @@ Director {
   Password = "<%= @password %>"
 }
 
-<% if @monitor_pass -%>
+<% if @tray_password -%>
 Director {
   Name = bacula-mon
-  Password = "<%= @monitor_pass %>"
+  Password = "<%= @tray_password %>"
   Monitor = yes
 }
 

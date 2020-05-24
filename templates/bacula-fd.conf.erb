@@ -8,18 +8,18 @@ Director {
   Password = "<%= @password %>"
 }
 
-<% if @monitor_pass -%>
+<% if @tray_password -%>
 # Restricted Director, used by tray-monitor to get the status of the file daemon
 Director {
   Name = bacula-mon
-  Password = "<%= @monitor_pass %>"
+  Password = "<%= @tray_password %>"
   Monitor = yes
 }
 
 <% end -%>
 # Now configure the actual File Daemon
 FileDaemon {
-  Name = "<%= @myname %>"
+  Name = "<%= @filedaemon_name %>"
   FDPort = <%= @port %>
   Working Directory = "<%= @client_workdir %>"
   PID Directory = "<%= @client_pid_dir %>"

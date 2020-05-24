@@ -1,42 +1,62 @@
+# @summary                 Installs bacula client.
 #
-# @summary                Installs bacula client.
+# @param director_hostname Must match hostname param of bacula::director.
+# @param password          Password string to connect to this client from director.
+# @param hostname          The hostname of this client. Bacula fd name is generated inside the code.
+# @param port              TCP port on which client listens.
+# @param tray_password     Separate password used by tray monitor and monitoring software.
 #
-# @param myname           The name of this client.
-# @param director_name    The name of the director as it's named in bacula-dir.conf.
-# @param password         Password string to connect to this client from director.
-# @param myip             IP on which client operates reachable from director side.
-# @param port             TCP port on which client listens.
-# @param monitoring_pass  Separate password used by tray monitor and monitoring software.
-#
-class bacula::client(
-  Enum['present','absent'] $ensure          = 'present',
-  String[1]                $myname          = $bacula::params::client_name,
-  String                   $director_name   = $bacula::params::director_name,
-  Stdlib::Ip::Address      $myip            = $bacula::params::myip,
-  Numeric                  $port            = $bacula::params::client_port,
-  String                   $password,
-  Optional[String]         $monitor_pass    = undef,
+class bacula::client (
+  String[1]                $director_hostname,
+  String[1]                $password,
+  Enum['present','absent'] $ensure             = 'present',
+  String[1]                $hostname           = $::fqdn,
+  Numeric                  $port               = $bacula::params::client_port,
+  Optional[String]         $tray_password      = undef,
 ) inherits bacula::params {
 
-  package { $client_package_name:
-    ensure => $ensure ? { 'present' => 'present', 'absent' => 'purged' },
-  }
+  # Internal variables
+  # --------------------------------------------------------------------------------------------------
+  ## director
+  $director_name = "${director_hostname}:dir"
 
-  $tmpl = $::kernel ?
+  ## client
+  $client_package_name = $bacula::params::client_package_name
+  $client_cfgfile      = $bacula::params::client_cfgfile
+  $client_cfgfile_tmpl = $bacula::params::client_cfgfile_tmpl
+  $client_service_name = $bacula::params::client_service_name
+
+  $filedaemon_name     = "${hostname}:fd"
+
+  $package_ensure = $ensure ?
   {
-    'windows' => 'bacula-fd.conf.win.erb',
-    'linux'   => 'bacula-fd.conf.erb',
+    'present' => 'present',
+    'absent'  => 'purged'
+  }
+  $service_ensure = $ensure ?
+  {
+    'present' => 'running',
+    'absent'  => undef
+  }
+  $service_enable = $ensure ?
+  {
+    'present' => true,
+    'absent'  => undef
   }
 
-  file { $client_cfgfile:
+  # Bacule client components
+  # --------------------------------------------------------------------------------------------------
+  package { $client_package_name:
+    ensure => $package_ensure,
+  }
+
+  -> file { $client_cfgfile:
     ensure  => $ensure,
-    content => template("bacula/${tmpl}"),
-    require => Package[$client_package_name],
-    notify  => Service[$client_service_name],
+    content => template("bacula/${client_cfgfile_tmpl}"),
   }
 
-  service { $client_service_name:
-    ensure => $ensure ? { 'present' => 'running', 'absent' => undef },
-    enable => $ensure ? { 'present' => true,      'absent' => undef },
+  ~> service { $client_service_name:
+    ensure => $service_ensure,
+    enable => $service_enable,
   }
 }

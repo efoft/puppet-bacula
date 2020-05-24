@@ -3,7 +3,7 @@
 # Bacula Console Configuration
 
 Director {
-  Name = "<%= scope['bacula::server::myname'] -%>"
+  Name = "<%= @director_name -%>"
   Address = localhost
-  Password = "<%= scope['bacula::server::console_pass'] -%>"
+  Password = "<%= @password -%>"
 }

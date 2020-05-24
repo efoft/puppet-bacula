@@ -4,13 +4,13 @@
 #
 
 Director {
-  Name = "<%= @myname %>"
+  Name = "<%= @director_name %>"
   DIRport = <%= @port %>
   QueryFile = "/etc/bacula/query.sql"
   WorkingDirectory = "/var/spool/bacula"
   PidDirectory = "/var/run"
   Maximum Concurrent Jobs = 1
-  Password = "<%= @console_pass %>"         # Console password
+  Password = "<%= @password %>"    # Console password
   Messages = Daemon
 }
 
@@ -75,9 +75,9 @@ Storage {
   Name = "<%= @storage_name %>"
   Address = <%= @storage_addr %>
   SDPort = <%= @storage_port %>
-  Password = "<%= @storage_pass %>"
-  Device = FileStorage
-  Media Type = File
+  Password = "<%= @storage_password %>"
+  Device = "<%= @storage_device_name %>"
+  Media Type = "<%= @storage_media_type %>"
 }
 
 # Schedules
@@ -204,12 +204,12 @@ Pool {
 }
 
 <% end -%>
-<% if @monitor_pass -%>
+<% if @tray_password -%>
 # Restricted console used by tray-monitor to get the status of the director
 # -----------------------------------------------------------------------------------------------------------------------
 Console {
   Name = bacula-mon
-  Password = "<%= @monitor_pass %>"
+  Password = "<%= @tray_password %>"
   CommandACL = status, .status
 }
 
