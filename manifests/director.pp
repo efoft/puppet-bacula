@@ -34,6 +34,7 @@ class bacula::director (
   Optional[String[1]]        $tray_password       = undef,
   Enum['mysql','postgresql'] $dbtype              = 'postgresql',
   String                     $dbhost              = 'localhost',
+  Optional[Integer]          $dbport              = undef,
   String                     $dbname              = 'bacula',
   String                     $dbuser              = 'bacula',
   String                     $dbpass              = '',

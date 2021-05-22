@@ -3,6 +3,11 @@ class bacula::director::config inherits bacula::director {
 
   $ensure           = $bacula::director::ensure
   $dbtype           = $bacula::director::dbtype
+  $dbhost           = $bacula::director::dbhost
+  $dbport           = $bacula::director::dbport
+  $dbname           = $bacula::director::dbname
+  $dbuser           = $bacula::director::dbuser
+  $dbpass           = $bacula::director::dbpass
   $conf_d_dir       = $bacula::director::conf_d_dir
   $console_cfgfile  = $bacula::director::console_cfgfile
   $director_cfgfile = $bacula::director::director_cfgfile

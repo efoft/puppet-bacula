@@ -18,7 +18,7 @@ Director {
 Catalog {
   Name = "<%= @catalog_name %>"
   dbname = "<%= @dbname %>"; dbdriver = dbi:<%= @dbtype %>;
-  dbaddress = <%= @dbhost %>; dbuser = "<%= @dbuser %>"; dbpassword = "<%= @dbpass %>"
+  dbaddress = <%= @dbhost %>; <% if @dbport %>dbport = <%= @dbport %>; <% end %>dbuser = "<%= @dbuser %>"; dbpassword = "<%= @dbpass %>"
 }
 
 # Job defaults
