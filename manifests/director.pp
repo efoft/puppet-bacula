@@ -12,6 +12,7 @@
 # @param tray_password       Separate optional password that can be used by tray monitor and other monitoring software.
 # @param dbtype              One of 'mysql' or 'postgresql'.
 # @param dbhost              The hostname/address where database resides. Defaults to 'localhost'.
+# @param dbport              Tcp port on which database accepts the connection. Use if not default.
 # @param dbname              The name of the database.
 # @param dbuser              The database username.
 # @param dbpass              The password for the database user.
